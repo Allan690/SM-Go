@@ -15,7 +15,7 @@ func StartService() {
 		api.POST("/user", user.CreateUser)
 		api.GET("/user/:id", user.GetUser)
 		api.PUT("/user/:id", user.UpdateUser)
-		//api.DELETE("/user/:id", user.DeleteUser)
+		api.DELETE("/user/:id", user.DeleteUser)
 	}
 	router.NoRoute(func(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)
@@ -25,5 +25,4 @@ func StartService() {
 		fmt.Print(err)
 		panic("An error occurred when running this application")
 	}
-
 }

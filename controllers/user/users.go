@@ -74,6 +74,27 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "success", "users": &users})
 }
 
+func DeleteUser(c *gin.Context) {
+	db := conn.GetMongoDB()
+	var id = bson.ObjectIdHex(c.Param("id"))
+	existingUser, err := user.UserInfo(id, UserCollection)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errInvalidId.Error()})
+		return
+	}
+	err = c.Bind(&existingUser)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errInvalidBody.Error()})
+		return
+	}
+	err = db.C(UserCollection).Remove(bson.M{"_id": &id})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errDeletionFailed.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "success", "message": "User deleted successfully"})
+}
+
 
 func GetUser(c *gin.Context) {
 	var id = bson.ObjectIdHex(c.Param("id")) // Get Param
