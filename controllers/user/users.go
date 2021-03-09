@@ -2,7 +2,7 @@ package user
 
 import (
 	"StoreManager/conn"
-	user "StoreManager/models/user"
+	user "StoreManager/model/user"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2/bson"

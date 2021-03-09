@@ -1,6 +1,7 @@
 package routes
 
 import (
+	product "StoreManager/controllers/products"
 	"StoreManager/controllers/user"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -11,11 +12,19 @@ func StartService() {
 	router := gin.Default()
 	api := router.Group("/api")
 	{
+		// user routes
 		api.GET("/user", user.GetAllUsers)
 		api.POST("/user", user.CreateUser)
 		api.GET("/user/:id", user.GetUser)
 		api.PUT("/user/:id", user.UpdateUser)
 		api.DELETE("/user/:id", user.DeleteUser)
+
+		// product routes
+		api.GET("/product", product.GetAllProducts)
+		api.POST("/product", product.CreateProduct)
+		api.GET("/product/:id", product.GetProductById)
+		api.PUT("/product/:id", product.UpdateProduct)
+		api.DELETE("/product/:id", product.DeleteProduct)
 	}
 	router.NoRoute(func(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)
