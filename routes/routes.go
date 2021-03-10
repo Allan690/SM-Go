@@ -2,6 +2,7 @@ package routes
 
 import (
 	product "StoreManager/controllers/products"
+	sale "StoreManager/controllers/sales"
 	"StoreManager/controllers/user"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -25,6 +26,12 @@ func StartService() {
 		api.GET("/product/:id", product.GetProductById)
 		api.PUT("/product/:id", product.UpdateProduct)
 		api.DELETE("/product/:id", product.DeleteProduct)
+
+		// sales routes
+		api.GET("/sale", sale.GetAllSales)
+		api.POST("/sale", sale.CreateSale)
+		api.GET("/sale/:id", sale.GetSaleById)
+		api.PUT("/sale/:id", sale.UpdateSale)
 	}
 	router.NoRoute(func(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)

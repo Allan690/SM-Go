@@ -4,7 +4,6 @@ import (
 	"StoreManager/conn"
 	product "StoreManager/model/products"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
@@ -77,7 +76,6 @@ func GetAllProducts(c *gin.Context) {
 	var q = c.Request.URL.Query()
 	var name = q.Get("name")
 	if len(strings.TrimSpace(name)) > 0 {
-		fmt.Println("here")
 		product_, err := product.ProductByName(name, ProductCollection)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errInvalidName.Error()})
