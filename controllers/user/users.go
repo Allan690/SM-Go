@@ -4,6 +4,7 @@ import (
 	"StoreManager/conn"
 	user "StoreManager/model/user"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
@@ -22,28 +23,28 @@ var (
 )
 
 func CreateUser(c *gin.Context) {
-	db := conn.GetMongoDB()
-	user := user.User{}
-	err := c.Bind(&user)
+	user_ := user.User{}
+	err := c.Bind(&user_)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errInvalidBody.Error()})
 		return
 	}
-	user.ID = bson.NewObjectId()
-	user.CreatedAt = time.Now()
-	user.UpdatedAt = time.Now()
-	err = db.C(UserCollection).Insert(user)
+	user_.ID = bson.NewObjectId()
+	user_.CreatedAt = time.Now()
+	user_.UpdatedAt = time.Now()
+	createdUser, err := user_.CreateUser(&user_)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errInsertionFailed.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": "success", "user": &user})
+	c.JSON(http.StatusOK, gin.H{"status": "success", "user": &createdUser})
 }
 
 func UpdateUser(c *gin.Context) {
 	db := conn.GetMongoDB()
 	var id = bson.ObjectIdHex(c.Param("id"))
-	existingUser, err := user.UserInfo(id, UserCollection)
+	existingUser, err := user.UserInfo(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errInvalidId.Error()})
 		return
@@ -77,7 +78,7 @@ func GetAllUsers(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 	db := conn.GetMongoDB()
 	var id = bson.ObjectIdHex(c.Param("id"))
-	existingUser, err := user.UserInfo(id, UserCollection)
+	existingUser, err := user.UserInfo(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errInvalidId.Error()})
 		return
@@ -98,7 +99,7 @@ func DeleteUser(c *gin.Context) {
 
 func GetUser(c *gin.Context) {
 	var id = bson.ObjectIdHex(c.Param("id")) // Get Param
-	user_, err := user.UserInfo(id, UserCollection)
+	user_, err := user.UserInfo(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errInvalidId.Error()})
 		return

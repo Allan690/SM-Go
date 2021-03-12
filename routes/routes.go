@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"StoreManager/controllers/auth"
 	product "StoreManager/controllers/products"
 	sale "StoreManager/controllers/sales"
 	"StoreManager/controllers/user"
@@ -32,6 +33,9 @@ func StartService() {
 		api.POST("/sale", sale.CreateSale)
 		api.GET("/sale/:id", sale.GetSaleById)
 		api.PUT("/sale/:id", sale.UpdateSale)
+
+		// auth routes
+		api.POST("/login", auth.LoginController)
 	}
 	router.NoRoute(func(c *gin.Context) {
 		c.AbortWithStatus(http.StatusNotFound)

@@ -86,8 +86,29 @@ func UpdateSale(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "success", "sale": &existingSale})
 }
 
+// fetches all sales
 func GetAllSales(c *gin.Context) {
 	allSales, err := sale.GetAllSales(SalesCollection)
+	var userId = c.Query("userId")
+	var productId = c.Query("productId")
+	if userId != "" {
+		existingSales, err := sale.GetSaleByUserId(bson.ObjectIdHex(userId), SalesCollection)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errNotExist.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"status": "success", "sales": &existingSales})
+		return
+	}
+	if productId != "" {
+		existingSales, err := sale.GetSalesByProductId(bson.ObjectIdHex(productId), SalesCollection)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errNotExist.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"status": "success", "sales": &existingSales})
+		return
+	}
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errNotExist.Error()})
 		return

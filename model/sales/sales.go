@@ -14,7 +14,6 @@ type Sale struct {
 	UpdatedAt time.Time  `bson:"updated_at"`
 }
 
-
 type Sales []Sale
 
 func GetSaleInfo(salesId bson.ObjectId, salesCollection string)(Sale, error) {
