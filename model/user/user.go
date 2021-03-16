@@ -4,6 +4,7 @@ import (
 	"StoreManager/conn"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 	"time"
 )
 
@@ -54,8 +55,9 @@ func (user *User) CreateUser(userDetails *User) (*User, error) {
 func (user *LoginDetails) LoginUser() (*User, error) {
 	db := conn.GetMongoDB()
 	user_ := User{}
-	err:= db.C(UserCollection).Find(bson.M{"email": user.Email}).One(&user_)
+	err := db.C(UserCollection).Find(bson.M{"email": user.Email}).One(&user_)
 	if err != nil {
+		log.Print(err)
 		return nil, err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user_.Password), []byte(user.Password))
