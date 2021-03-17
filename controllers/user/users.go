@@ -4,9 +4,9 @@ import (
 	"StoreManager/conn"
 	user "StoreManager/model/user"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 	"net/http"
 	"time"
 )
@@ -18,6 +18,7 @@ var (
 	errInvalidId = errors.New("invalid ID")
 	errInvalidBody = errors.New("invalid request body")
 	errInsertionFailed = errors.New("error in the user insertion")
+	errConflictingUser = errors.New("error in user insertion. User already exists")
 	errUpdateFailed  = errors.New("error in the user update")
 	errDeletionFailed  = errors.New("error in the user deletion")
 )
@@ -32,10 +33,15 @@ func CreateUser(c *gin.Context) {
 	user_.ID = bson.NewObjectId()
 	user_.CreatedAt = time.Now()
 	user_.UpdatedAt = time.Now()
-	createdUser, err := user_.CreateUser(&user_)
+	createdUser, err := user_.CreateUser()
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("occurred with the following details: %s", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "message": errInsertionFailed.Error()})
+		return
+	}
+	if createdUser == nil {
+		log.Printf("User with email: '%s' already exists", user_.Email)
+		c.JSON(http.StatusConflict, gin.H{"status": "failed", "message": errConflictingUser.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "success", "user": &createdUser})

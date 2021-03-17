@@ -38,17 +38,29 @@ func UserInfo(id bson.ObjectId) (User, error) {
 	return user, err
 }
 
-// creates a user
-func (user *User) CreateUser(userDetails *User) (*User, error) {
+// method to return a list of users
+func (user *User) GetAllUsers() (Users, error) {
 	db := conn.GetMongoDB()
-	bytes, err := bcrypt.GenerateFromPassword([]byte(userDetails.Password), 14)
+	var users Users
+	err := db.C(UserCollection).Find(bson.M{}).All(&users)
+	return users, err
+}
+
+// creates a user
+func (user *User) CreateUser() (*User, error) {
+	db := conn.GetMongoDB()
+	existing, err := user.GetUser()
+	if existing {
+		return nil, nil
+	}
+	bytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	if err != nil {
 		return nil, err
 	}
-	userDetails.Password = string(bytes)
-	err = db.C(UserCollection).Insert(userDetails)
-	userDetails.Password = ""
-	return userDetails, err
+	user.Password = string(bytes)
+	err = db.C(UserCollection).Insert(user)
+	user.Password = ""
+	return user, err
 }
 
 // handles user login
@@ -66,8 +78,12 @@ func (user *LoginDetails) LoginUser() (*User, error) {
 }
 
 // gets a user by email
-func (user *User) GetUser(email string) (*User, error) {
+func (user *User) GetUser() (bool, error) {
 	db := conn.GetMongoDB()
-	err := db.C(UserCollection).Find(bson.M{"email": email}).One(&user)
-	return user, err
+	err := db.C(UserCollection).Find(bson.M{"email": user.Email}).One(&user)
+	// if there's an error the user does not exist return false
+	if err != nil {
+		return false, err
+	}
+	return true, err
 }
